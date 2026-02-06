@@ -5,11 +5,18 @@ Authors@R:
     person(given = "Liyun",
            family = "Zeng",
            role = c("aut", "cre"),
-           email = "liyunzeng@gmail.com")
+           email = "liyunzeng@gmail.com",
            comment = c(ORCID = "0000-0001-5959-8295"))
-Description: Implements sparse learning algorithms for binary classification and class probability estimation using weighted Support Vector Machines (wSVMs). The package provides tools to perform simultaneous variable selection and probability calibration, which is particularly effective for high-dimensional datasets and scenarios with noise features. It features specialized sparse learning techniques and automatic feature selection designed to improve the accuracy of posterior probability estimates relative to standard machine learning algorithms. Based on the methodology in Zeng and Zhang (2023) Sparse Learning and Class Probability Estimation with Weighted Support Vector Machines". URL https://arxiv.org/abs/2312.10618 .
-License: `use_gpl3_license()` 
-    license
+Description: Implements sparse learning algorithms for binary classification 
+    and class probability estimation using weighted Support Vector Machines 
+    (wSVMs). The package provides tools to perform simultaneous variable 
+    selection and probability calibration, which is particularly effective 
+    for high-dimensional datasets and scenarios with noise features. It 
+    features specialized sparse learning techniques and automatic feature 
+    selection designed to improve the accuracy of posterior probability 
+    estimates relative to standard machine learning algorithms. Based on the 
+    methodology in Zeng and Zhang (2023) <arXiv:2312.10618>.
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
