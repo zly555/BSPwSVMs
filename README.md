@@ -33,8 +33,17 @@ devtools::install_github("zly555/BSPwSVMs")
 
 This example demonstrates the sparse learning and automated feature selection capabilities of `BSPwSVMs` using a simulation setup from **Example 3 in Zeng and Zhang (2023)**. This scenario is specifically designed to test the model's performance with unbalanced classes and highly correlated features ($p \gg n$).
 
+### Install the Required R Library
+
 ``` r
 library(BSPwSVMs)
+library(lpSolveAPI)
+library(quadprog)
+library(osqp)
+library(Matrix)
+library(MASS)
+library(ggplot2)
+library(tictoc, warn.conflicts = FALSE)
 ```
 
 ### Generate the Simulated Data
@@ -69,7 +78,7 @@ generator_ex3 <- function(n, p, mu, sig_feature=5, rho = 0, unbalance.ratio =0.5
   Sigma2 <- Sigma1
 
   set.seed(seed)
-  X <- rbind(mvrnorm(floor(n*unbalance.ratio),mu1,Sigma1), mvrnorm(floor(n*(1-unbalance.ratio)),mu2,Sigma2))
+  X <- rbind(MASS::mvrnorm(floor(n*unbalance.ratio),mu1,Sigma1), mvrnorm(floor(n*(1-unbalance.ratio)),mu2,Sigma2))
   y <- c(rep(1,floor(n*unbalance.ratio)),rep(-1,floor(n*(1-unbalance.ratio))))
 
   return(list(X= as.matrix(X), y = y, n=n, p=p, sig_feature=sig_feature))
@@ -153,7 +162,7 @@ n_records <- 1
 ### MCMC Simulations
 
 ``` r
-tic() # time measurement
+tictoc::tic() # time measurement
 
 # simulated with different dimensions
 for (p in p_dim){
@@ -182,10 +191,10 @@ for (p in p_dim){
       #############
       ## L2 wSVM ##
       #############
-      tic()
+      tictoc::tic()
       result <- L2wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, small.tune = TRUE)
       
-      T.diff <- toc()
+      T.diff <- tictoc::toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
       
@@ -210,11 +219,13 @@ for (p in p_dim){
       ################
       ## L1+L2 wSVM ##
       ################
-  
-      tic()
+        
+      algo_cnt <- 1
+        
+      tictoc::tic()
       result <- L1wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, osqp.option = TRUE, small.tune = TRUE, double.tune = FALSE, beta_precision = 2)
       
-      T.diff <- toc()
+      T.diff <- tictoc::toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
 
@@ -265,10 +276,10 @@ for (p in p_dim){
       #####################
       ## ElasticNet wSVM ##
       #####################
-      tic()
+      tictoc::tic()
       result <- ElasticNetwSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, l2.option = FALSE, beta_precision = 1e-2)
 
-      T.diff <- toc()
+      T.diff <- tictoc::toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
       
@@ -318,10 +329,10 @@ for (p in p_dim){
       ##########################
       ## ElasticNet + L2 wSVM ##
       ##########################
-      tic()
+      tictoc::tic()
       result <- ElasticNetwSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, l2.option = TRUE, beta_precision = 1e-3)
 
-      T.diff <- toc()
+      T.diff <- tictoc::toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
       
@@ -372,14 +383,33 @@ for (p in p_dim){
 }
 
 
-T.diff <- toc()
+T.diff <- tictoc::toc()
 time_elasped <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
 
 cat("Total Time for simulations:\n", time_elasped, "\n")
 
 ```
 
+## Write Output CSV File
 
+``` r
+# generate simulation result file name
+sim_str <- paste("_ex", exr_no, "_sim", sim_no, ".csv", sep = "")
+
+# Prepare and write the feature aggregation matrix
+for (p in p_dim){
+  for (algo_index in 1:n_alg){
+    F_matrix[[paste("F_Matrix_p", p, sep = "")]][n_alg*m+algo_index,2:(p+1)] <- colSums(F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index-1)*m+1):(algo_index*m),2:(p+1)])
+  }
+   # retain the aggregated rows for 5 algorithms
+   F_matrix[[paste("F_Matrix_p", p, sep = "")]] <- F_matrix[[paste("F_Matrix_p", p, sep = "")]][(n_alg*m+1):(n_alg*(m+1)),]
+   F_matrix[[paste("F_Matrix_p", p, sep = "")]] <- as.data.frame(F_matrix[[paste("F_Matrix_p", p, sep = "")]])
+   write.csv(F_matrix[[paste("F_Matrix_p", p, sep = "")]], file = paste("f_mat_p", p, sim_str, sep = ""))
+}
+
+# write the result matrix
+write.csv(Result_Matrix, file = paste("result", sim_str, sep = "")) 
+```
 
 
 
