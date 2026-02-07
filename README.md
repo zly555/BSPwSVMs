@@ -428,7 +428,7 @@ write.csv(Result_Matrix, file = 'example3.csv')
 | ENPWSVM       | 100   | 1000     | 14.335   | 0.055  | 0.550  | 0.383    | 0.133  | 5.0              | 112.0           |
 | ENTPWSVM      | 100   | 1000     | 14.353   | 0.055  | 0.055  | 0.369    | 0.152  | 5.0              | 257.0           |
 
-### Conclusion
+## Conclusion
 
 The **BSPwSVMs** package provides a comprehensive toolkit for high-dimensional binary classification where both predictive accuracy and model interpretability are paramount. By integrating weighted Support Vector Machines (wSVMs) with sparsity-inducing penalties, we address a critical gap in standard machine learning workflows: the need for reliable class probability estimation in the presence of noise and high-dimensional features.
 
