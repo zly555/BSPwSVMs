@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # BSPwSVMs
@@ -31,7 +30,21 @@ devtools::install_github("zly555/BSPwSVMs")
 
 ## Example
 
-This example demonstrates the sparse learning and automated feature selection capabilities of `BSPwSVMs` using a simulation setup from **Example 3 in Zeng and Zhang (2023)**. This scenario is specifically designed to test the model's performance with unbalanced classes and highly correlated features ($p \gg n$).
+This example demonstrates the sparse learning and automated feature selection capabilities of the `BSPwSVMs` package using the simulation framework from **Example 3 in Zeng and Zhang (2023)**. This scenario specifically evaluates model performance in the presence of **unbalanced classes** and **highly correlated features** where $p \gg n$.
+
+We compare four distinct algorithms to showcase the advantages of our proposed methods:
+
+- **$L_2$-wSVMs (Baseline):** The standard weighted SVM with no feature selection capability.
+- **$L_1$-$L_2$ Sparse Learning:** Incorporates Lasso-style penalties for variable selection.
+- **Elastic Net Sparse Learning:** Combines $L_1$ and $L_2$ penalties to handle correlated predictors.
+- **Elastic Net-$L_2$ Sparse Learning:** A specialized hybrid scheme for optimized probability estimation.
+
+The example tracks four key performance metrics:
+
+1. **Running Time:** Computational efficiency in high-dimensional spaces.
+2. **EGKL:** Expected Generalized Kullback-Leibler divergence, used as a rigorous measure of class probability estimation accuracy.
+3. **Test Error:** Overall classification accuracy on out-of-sample data.
+4. **Feature Selection:** The model's ability to identify the true informative predictors from the noise.
 
 ### Install the Required R Library
 
@@ -192,9 +205,9 @@ for (p in p_dim){
       ## L2 wSVM ##
       #############
       tictoc::tic()
-      result <- L2wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, small.tune = TRUE)
+      result <- L2wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, small.tune = FALSE)
       
-      T.diff <- tictoc::toc()
+      T.diff <- toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
       
@@ -213,7 +226,7 @@ for (p in p_dim){
       Result_Matrix[n_records, 13] <- result$egkl
       Result_Matrix[n_records, 14] <- result$TestErr
       Result_Matrix[n_records, 15:length(col_names)] <- NA
-
+      
       n_records <- n_records + 1
 
       ################
@@ -223,12 +236,11 @@ for (p in p_dim){
       algo_cnt <- 1
         
       tictoc::tic()
-      result <- L1wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, osqp.option = TRUE, small.tune = TRUE, double.tune = FALSE, beta_precision = 2)
+      result <- L1wSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, osqp.option = TRUE, small.tune = FALSE, double.tune = FALSE, beta_precision = 2)
       
-      T.diff <- tictoc::toc()
+      T.diff <- toc()
       elapsed_time <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
       log_elapsed_time <- round(log(elapsed_time),3)
-
       
       Result_Matrix[n_records, 1] <- sim
       Result_Matrix[n_records, 2] <- algs[1]
@@ -244,6 +256,7 @@ for (p in p_dim){
       Result_Matrix[n_records, 12] <- 10^((-1)*result$beta_precision)
       Result_Matrix[n_records, 13] <- result$egkl
       Result_Matrix[n_records, 14] <- result$TestErr
+      
       # Union features
       aggr_f_sum <- colSums(result$f_matrix)
       Result_Matrix[n_records, 15] <- sum(aggr_f_sum[1:n_sig_features]!=0)
@@ -387,41 +400,44 @@ T.diff <- tictoc::toc()
 time_elasped <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
 
 cat("Total Time for simulations:\n", time_elasped, "\n")
+# Total Time for simulations:
+# 63.276 
 
+# write the result into CSV file
+write.csv(Result_Matrix, file = 'example3.csv')
 ```
 
-## Write Output CSV File
+### Simulation Results (Example 3)
 
-``` r
-# generate simulation result file name
-sim_str <- paste("_ex", exr_no, "_sim", sim_no, ".csv", sep = "")
+| **Algorithm** | **N** | **Dims** | **Time** | **λ1** | **λ2** | **EGKL** | **TE** | **$p_{signal}$** | **$p_{noisy}$** |
+| :------------ | :---- | :------- | :------- | :----- | :----- | :------- | :----- | :--------------- | :-------------- |
+| LTWSVM        | 100   | 100      | 0.795    | 0.280  | NA     | 0.360    | 0.156  | NA               | NA              |
+| LOTWSVM       | 100   | 100      | 1.240    | 0.046  | NA     | 0.353    | 0.145  | 5.0              | 27.0            |
+| ENPWSVM       | 100   | 100      | 1.269    | 0.055  | 0.006  | 0.340    | 0.135  | 5.0              | 13.0            |
+| ENTPWSVM      | 100   | 100      | 1.337    | 0.055  | 0.006  | 0.372    | 0.157  | 5.0              | 95.0            |
+| LTWSVM        | 100   | 200      | 0.728    | 0.550  | NA     | 0.402    | 0.163  | NA               | NA              |
+| LOTWSVM       | 100   | 200      | 1.569    | 0.073  | NA     | 0.393    | 0.129  | 3.0              | 15.0            |
+| ENPWSVM       | 100   | 200      | 2.354    | 0.055  | 0.006  | 0.387    | 0.135  | 4.0              | 25.0            |
+| ENTPWSVM      | 100   | 200      | 2.442    | 0.006  | 55.0   | 0.365    | 0.153  | 5.0              | 41.0            |
+| LTWSVM        | 100   | 400      | 0.791    | 0.910  | NA     | 0.428    | 0.192  | NA               | NA              |
+| LOTWSVM       | 100   | 400      | 2.958    | 0.082  | NA     | 0.384    | 0.133  | 4.0              | 13.0            |
+| ENPWSVM       | 100   | 400      | 5.168    | 0.055  | 0.001  | 0.361    | 0.136  | 4.0              | 38.0            |
+| ENTPWSVM      | 100   | 400      | 5.254    | 0.055  | 55.0   | 0.373    | 0.126  | 5.0              | 16.0            |
+| LTWSVM        | 100   | 1000     | 0.985    | 1.900  | NA     | 0.460    | 0.200  | NA               | NA              |
+| LOTWSVM       | 100   | 1000     | 8.202    | 0.100  | NA     | 0.412    | 0.130  | 5.0              | 11.0            |
+| ENPWSVM       | 100   | 1000     | 14.335   | 0.055  | 0.550  | 0.383    | 0.133  | 5.0              | 112.0           |
+| ENTPWSVM      | 100   | 1000     | 14.353   | 0.055  | 0.055  | 0.369    | 0.152  | 5.0              | 257.0           |
 
-# Prepare and write the feature aggregation matrix
-for (p in p_dim){
-  for (algo_index in 1:n_alg){
-    F_matrix[[paste("F_Matrix_p", p, sep = "")]][n_alg*m+algo_index,2:(p+1)] <- colSums(F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index-1)*m+1):(algo_index*m),2:(p+1)])
-  }
-   # retain the aggregated rows for 5 algorithms
-   F_matrix[[paste("F_Matrix_p", p, sep = "")]] <- F_matrix[[paste("F_Matrix_p", p, sep = "")]][(n_alg*m+1):(n_alg*(m+1)),]
-   F_matrix[[paste("F_Matrix_p", p, sep = "")]] <- as.data.frame(F_matrix[[paste("F_Matrix_p", p, sep = "")]])
-   write.csv(F_matrix[[paste("F_Matrix_p", p, sep = "")]], file = paste("f_mat_p", p, sim_str, sep = ""))
-}
+### Conclusion
 
-# write the result matrix
-write.csv(Result_Matrix, file = paste("result", sim_str, sep = "")) 
-```
+The **BSPwSVMs** package provides a comprehensive toolkit for high-dimensional binary classification where both predictive accuracy and model interpretability are paramount. By integrating weighted Support Vector Machines (wSVMs) with sparsity-inducing penalties, we address a critical gap in standard machine learning workflows: the need for reliable class probability estimation in the presence of noise and high-dimensional features.
 
+**Our key contributions include:**
 
+- **Accurate Probability Estimation:** We leverage the weighted SVM framework to ensure posterior probabilities are well-calibrated. This is evidenced by the low **EGKL** (Expected Generalized Kullback-Leibler) scores across our high-dimensional simulations, indicating superior estimation of class membership likelihoods compared to standard SVM implementations.
+- **Automatic Feature Selection:** By utilizing $L_1$ and Elastic Net regularizers, the package spontaneously identifies informative predictors. This significantly reduces the impact of noise features—a critical capability for maintaining model performance in settings where the number of dimensions far exceeds the number of observations ($p \gg n$).
+- **Robustness to Correlation:** As demonstrated in our correlated feature simulations ($\rho=0.8$), `BSPwSVMs` maintains high signal capture ($p_{signal}$) where traditional $L_2$ methods fail to provide sparsity. Furthermore, the Elastic Net component effectively handles the grouping effect of highly correlated features, ensuring that relevant variable clusters are selected together rather than arbitrarily excluded.
 
+For a deeper dive into the mathematical proofs, complexity analysis, and extensive Monte Carlo performance metrics, please consult:
 
-
-
-
-
-
-
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+> **Zeng, L. and Zhang, H. H. (2023).** *Sparse Learning and Class Probability Estimation with Weighted Support Vector Machines.* [arXiv:2312.10618](https://arxiv.org/abs/2312.10618)
