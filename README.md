@@ -34,7 +34,7 @@ This example demonstrates the sparse learning and automated feature selection ca
 
 We compare four distinct algorithms to showcase the advantages of our proposed methods:
 
-- **$L_2$ - wSVMs (Baseline):** The standard weighted SVM with no feature selection capability.
+- **$L_2$ - wSVMs (LTWSVM):** The standard weighted SVM with no feature selection capability as baseline.
 - **$L_1$ - $L_2$ - wSVMs (LOTWSVM):** Incorporates Lasso-style penalties for variable selection.
 - **Elastic Net - wSVMs (ENPWSVM):** Combines $L_1$ and $L_2$ penalties to handle correlated predictors.
 - **Elastic Net - $L_2$ - wSVMs (ENTPWSVM):** A specialized hybrid scheme for optimized probability estimation.
@@ -42,7 +42,7 @@ We compare four distinct algorithms to showcase the advantages of our proposed m
 The example tracks four key performance metrics:
 
 1. **Running Time:** Computational efficiency in high-dimensional spaces.
-2. **EGKL:** Expected Generalized Kullback-Leibler divergence, used as a rigorous measure of class probability estimation accuracy.
+2. **EGKL:** Expected Generalized Kullback-Leibler divergence, used as a rigorous measure of class probability estimation.
 3. **Test Error:** Overall classification accuracy on out-of-sample data.
 4. **Feature Selection:** The model's ability to identify the true informative predictors from the noise.
 
@@ -56,7 +56,7 @@ library(osqp)
 library(Matrix)
 library(MASS)
 library(ggplot2)
-library(tictoc, warn.conflicts = FALSE)
+library(tictoc)
 ```
 
 ### Generate the Simulated Data
@@ -109,7 +109,6 @@ train.tune.ratio <- 0.5
 p_dim <- c(100, 200, 400, 1000)
 n_train <- floor(n*train.tune.ratio)
 
-
 nsim <- 1 # number of simulatiom
 
 # number of PIs 
@@ -141,7 +140,8 @@ threshold_freq <- max_freq*threshold
 ###################################################
 
 set.seed (42)
-rand_seed <- sample.int(10000, 3*nsim)
+# rand_seed <- sample.int(10000, 3*nsim) # if use MCMC simulations
+rand_seed <- c(11224, 33713, 64410) # just used for 1 simulation as example
 
 ##################################
 ######Prepare result Matrix ######
@@ -199,7 +199,6 @@ for (p in p_dim){
       sig_features <- 1:n_sig_features
 
       seed.cnt <- seed.cnt + 3
-
 
       #############
       ## L2 wSVM ##
@@ -279,17 +278,17 @@ for (p in p_dim){
         cnt <- cnt+2
       }
 
-
       F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] <- F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] + result$f_matrix
       
       n_records <- n_records + 1
       algo_cnt <- algo_cnt + 1
-
       
       #####################
       ## ElasticNet wSVM ##
       #####################
+      
       tictoc::tic()
+        
       result <- ElasticNetwSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, l2.option = FALSE, beta_precision = 1e-2)
 
       T.diff <- tictoc::toc()
@@ -310,7 +309,8 @@ for (p in p_dim){
       Result_Matrix[n_records, 12] <- result$beta_precision
       Result_Matrix[n_records, 13] <- result$egkl
       Result_Matrix[n_records, 14] <- result$TestErr
-       # Union features
+      
+      # Union features
       aggr_f_sum <- colSums(result$f_matrix)
       Result_Matrix[n_records, 15] <- sum(aggr_f_sum[1:n_sig_features]!=0)
       Result_Matrix[n_records, 16] <- sum(aggr_f_sum[-(1:n_sig_features)]!=0)
@@ -332,17 +332,17 @@ for (p in p_dim){
         cnt <- cnt+2
       }
 
-
       F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] <- F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] + result$f_matrix
       
       n_records <- n_records + 1
       algo_cnt <- algo_cnt + 1
 
-
       ##########################
       ## ElasticNet + L2 wSVM ##
       ##########################
+     
       tictoc::tic()
+      
       result <- ElasticNetwSVM(x.train, y.train, x.tune, y.tune, x.test, y.test, l2.option = TRUE, beta_precision = 1e-3)
 
       T.diff <- tictoc::toc()
@@ -363,7 +363,8 @@ for (p in p_dim){
       Result_Matrix[n_records, 12] <- result$beta_precision
       Result_Matrix[n_records, 13] <- result$egkl
       Result_Matrix[n_records, 14] <- result$TestErr
-       # Union features
+       
+      # Union features
       aggr_f_sum <- colSums(result$f_matrix)
       Result_Matrix[n_records, 15] <- sum(aggr_f_sum[1:n_sig_features]!=0)
       Result_Matrix[n_records, 16] <- sum(aggr_f_sum[-(1:n_sig_features)]!=0)
@@ -385,48 +386,46 @@ for (p in p_dim){
         cnt <- cnt+2
       }
 
-
       F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] <- F_matrix[[paste("F_Matrix_p", p, sep = "")]][((algo_index[algo_cnt]-1)*m+1):(algo_index[algo_cnt]*m),2:(p+1)] + result$f_matrix
       
       n_records <- n_records + 1
 
   }
 
-
 }
-
 
 T.diff <- tictoc::toc()
 time_elasped <- round(as.numeric(T.diff$toc - T.diff$tic)/60, 3)
 
+# total running time for simulation
 cat("Total Time for simulations:\n", time_elasped, "\n")
 # Total Time for simulations:
 # 63.276 
 
-# write the result into CSV file
+# write the simulation result into CSV file
 write.csv(Result_Matrix, file = 'example3.csv')
 ```
 
 ### Simulation Results (Example 3)
 
-| **Algorithm** | **N** | **Dims** | **Time** | **$λ_1$** | **$λ_2$** | **EGKL** | **TE** | **$p_{signal}$** | **$p_{noisy}$** |
-| :------------ | :---- | :------- | :------- | :-------- | :-------- | :------- | :----- | :--------------- | :-------------- |
-| LTWSVM        | 100   | 100      | 0.795    | 0.280     | NA        | 0.360    | 0.156  | NA               | NA              |
-| LOTWSVM       | 100   | 100      | 1.240    | 0.046     | NA        | 0.353    | 0.145  | 5.0              | 27.0            |
-| ENPWSVM       | 100   | 100      | 1.269    | 0.055     | 0.006     | 0.340    | 0.135  | 5.0              | 13.0            |
-| ENTPWSVM      | 100   | 100      | 1.337    | 0.055     | 0.006     | 0.372    | 0.157  | 5.0              | 95.0            |
-| LTWSVM        | 100   | 200      | 0.728    | 0.550     | NA        | 0.402    | 0.163  | NA               | NA              |
-| LOTWSVM       | 100   | 200      | 1.569    | 0.073     | NA        | 0.393    | 0.129  | 3.0              | 15.0            |
-| ENPWSVM       | 100   | 200      | 2.354    | 0.055     | 0.006     | 0.387    | 0.135  | 4.0              | 25.0            |
-| ENTPWSVM      | 100   | 200      | 2.442    | 0.006     | 55.0      | 0.365    | 0.153  | 5.0              | 41.0            |
-| LTWSVM        | 100   | 400      | 0.791    | 0.910     | NA        | 0.428    | 0.192  | NA               | NA              |
-| LOTWSVM       | 100   | 400      | 2.958    | 0.082     | NA        | 0.384    | 0.133  | 4.0              | 13.0            |
-| ENPWSVM       | 100   | 400      | 5.168    | 0.055     | 0.001     | 0.361    | 0.136  | 4.0              | 38.0            |
-| ENTPWSVM      | 100   | 400      | 5.254    | 0.055     | 55.0      | 0.373    | 0.126  | 5.0              | 16.0            |
-| LTWSVM        | 100   | 1000     | 0.985    | 1.900     | NA        | 0.460    | 0.200  | NA               | NA              |
-| LOTWSVM       | 100   | 1000     | 8.202    | 0.100     | NA        | 0.412    | 0.130  | 5.0              | 11.0            |
-| ENPWSVM       | 100   | 1000     | 14.335   | 0.055     | 0.550     | 0.383    | 0.133  | 5.0              | 112.0           |
-| ENTPWSVM      | 100   | 1000     | 14.353   | 0.055     | 0.055     | 0.369    | 0.152  | 5.0              | 257.0           |
+| **Algorithm** | **N** | **Dims** | **Time (min)** | **$λ_1$** | **$λ_2$** | **EGKL** | **TE** | **$p_{signal}$** | **$p_{noise}$** |
+| ------------- | ----- | -------- | -------------- | --------- | --------- | -------- | ------ | ---------------- | --------------- |
+| LTWSVM        | 100   | 100      | 0.795          | 0.280     | NA        | 0.378    | 0.165  | NA               | NA              |
+| LOTWSVM       | 100   | 100      | 1.240          | 0.064     | NA        | 0.391    | 0.145  | 4                | 13              |
+| ENPWSVM       | 100   | 100      | 1.269          | 0.055     | 0.0055    | 0.382    | 0.132  | 4                | 17              |
+| ENTPWSVM      | 100   | 100      | 1.337          | 0.055     | 55        | 0.370    | 0.125  | 5                | 4               |
+| LTWSVM        | 100   | 200      | 0.728          | 0.640     | NA        | 0.397    | 0.162  | NA               | NA              |
+| LOTWSVM       | 100   | 200      | 1.569          | 0.064     | NA        | 0.389    | 0.139  | 5                | 23              |
+| ENPWSVM       | 100   | 200      | 2.354          | 0.055     | 0.055     | 0.387    | 0.132  | 5                | 26              |
+| ENTPWSVM      | 100   | 200      | 2.442          | 0.550     | 0.055     | 0.389    | 0.137  | 5                | 157             |
+| LTWSVM        | 100   | 400      | 0.791          | 1.900     | NA        | 0.457    | 0.160  | NA               | NA              |
+| LOTWSVM       | 100   | 400      | 2.958          | 0.100     | NA        | 0.369    | 0.113  | 4                | 2               |
+| ENPWSVM       | 100   | 400      | 5.168          | 0.055     | 0.0055    | 0.319    | 0.126  | 4                | 31              |
+| ENTPWSVM      | 100   | 400      | 5.254          | 0.055     | 55        | 0.373    | 0.128  | 5                | 9               |
+| LTWSVM        | 100   | 1000     | 0.985          | 1.900     | NA        | 0.465    | 0.204  | NA               | NA              |
+| LOTWSVM       | 100   | 1000     | 8.202          | 0.037     | NA        | 0.388    | 0.159  | 4                | 103             |
+| ENPWSVM       | 100   | 1000     | 14.335         | 0.055     | 0.055     | 0.362    | 0.143  | 5                | 81              |
+| ENTPWSVM      | 100   | 1000     | 14.353         | 0.055     | 0.55      | 0.372    | 0.158  | 5                | 180             |
 
 ## Conclusion
 
