@@ -80,7 +80,7 @@ generator_ex3 <- function(n,
                           sig_feature = 5, 
                           rho = 0, 
                           unbalance.ratio = 0.5, 
-                          seed=42){
+                          seed = 42){
 
   mu1 <-  c(rep(mu,sig_feature),rep(0,p-sig_feature))
   mu2 <-  c(rep(-mu,sig_feature),rep(0,p-sig_feature))
