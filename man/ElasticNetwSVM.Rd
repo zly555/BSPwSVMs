@@ -34,7 +34,7 @@ ElasticNetwSVM(
 
 \item{l2.option}{option to use L2-wSVMs for probability estimation}
 
-\item{beta_precision}{round decimal points for beta}
+\item{beta_precision}{minimum precision for beta}
 
 \item{eps}{Small threshold}
 }
