@@ -77,9 +77,9 @@ library(tictoc)
 generator_ex3 <- function(n, 
                           p, 
                           mu, 
-                          sig_feature=5, 
+                          sig_feature = 5, 
                           rho = 0, 
-                          unbalance.ratio =0.5, 
+                          unbalance.ratio = 0.5, 
                           seed=42){
 
   mu1 <-  c(rep(mu,sig_feature),rep(0,p-sig_feature))
@@ -189,28 +189,28 @@ for (p in p_dim){
     # loop for number of simulation (here use 1 simulation as illustration)
     for (sim in 1:nsim){
       # generate training, tuning and testing data
-      train.data <- generator_ex3(n=n_train, 
+      train.data <- generator_ex3(n = n_train, 
                                   p = p, 
                                   mu = 1, 
-                                  sig_feature=5, 
+                                  sig_feature = 5, 
                                   rho = 0.8, 
-                                  unbalance.ratio =0.6, 
+                                  unbalance.ratio = 0.6, 
                                   seed = rand_seed[seed.cnt])
       
-      tune.data <- generator_ex3(n=n-n_train, 
+      tune.data <- generator_ex3(n = n-n_train, 
                                  p = p, 
                                  mu = 1, 
-                                 sig_feature=5, 
+                                 sig_feature = 5, 
                                  rho = 0.8, 
-                                 unbalance.ratio =0.6, 
+                                 unbalance.ratio = 0.6, 
                                  seed = rand_seed[seed.cnt+1])
       
-      test.data <- generator_ex3(n=25*n, 
+      test.data <- generator_ex3(n = 25*n, 
                                  p = p, 
                                  mu = 1, 
-                                 sig_feature=5, 
+                                 sig_feature = 5, 
                                  rho = 0.8, 
-                                 unbalance.ratio =0.6, 
+                                 unbalance.ratio = 0.6, 
                                  seed = rand_seed[seed.cnt+2])
 
       x.train <- train.data$X
