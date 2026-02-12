@@ -8,7 +8,7 @@
 #' @param y.test testing y
 #' @param kernel Kernel params list. default: 'linear' in sparse learning
 #' @param l2.option option to use L2-wSVMs for probability estimation
-#' @param beta_precision round decimal points for beta
+#' @param beta_precision minimum precision for beta
 #' @param eps Small threshold
 #'
 #' @return Result matrix for downstream analysis
