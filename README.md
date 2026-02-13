@@ -37,7 +37,7 @@ We compare four distinct algorithms to showcase the advantages of our proposed m
 - **$L_2$ - wSVMs (LTWSVM):** The standard weighted SVM with no feature selection capability as baseline method.
 - **$L_1$ - $L_2$ - wSVMs (LOTWSVM):** Incorporates Lasso-style penalties for variable selection.
 - **Elastic Net - wSVMs (ENPWSVM):** Combines $L_1$ and $L_2$ penalties to handle correlated predictors.
-- **Elastic Net - $L_2$ - wSVMs (ENTPWSVM):** A hybrid scheme for optimized probability estimation and feature grouping.
+- **Elastic Net - $L_2$ - wSVMs (ENTPWSVM):** A hybrid scheme for optimized probability estimation and grouping.
 
 The example tracks four key performance metrics:
 
