@@ -34,10 +34,10 @@ This example demonstrates the sparse learning and automated feature selection ca
 
 We compare four distinct algorithms to showcase the advantages of our proposed methods:
 
-- **$L_2$ - wSVMs (LTWSVM):** The standard weighted SVM with no feature selection capability as baseline.
+- **$L_2$ - wSVMs (LTWSVM):** The standard weighted SVM with no feature selection capability as baseline method.
 - **$L_1$ - $L_2$ - wSVMs (LOTWSVM):** Incorporates Lasso-style penalties for variable selection.
 - **Elastic Net - wSVMs (ENPWSVM):** Combines $L_1$ and $L_2$ penalties to handle correlated predictors.
-- **Elastic Net - $L_2$ - wSVMs (ENTPWSVM):** A specialized hybrid scheme for optimized probability estimation.
+- **Elastic Net - $L_2$ - wSVMs (ENTPWSVM):** A hybrid scheme for optimized probability estimation and feature grouping.
 
 The example tracks four key performance metrics:
 
