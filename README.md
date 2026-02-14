@@ -30,7 +30,7 @@ devtools::install_github("zly555/BSPwSVMs")
 
 ## Example
 
-This example demonstrates the sparse learning and automated feature selection capabilities of the `BSPwSVMs` package using the simulation framework from **Example 3 in Zeng and Zhang (2023)**. This scenario specifically evaluates model performance in the presence of **unbalanced classes** and **highly correlated features** where $p \gg n$.
+This example demonstrates the sparse learning and automated feature selection capabilities of the `BSPwSVMs` package using the simulation framework from Example 3 in Zeng and Zhang (2023). This scenario specifically evaluates model performance in the presence of **unbalanced classes** and **highly correlated features** where $p \gg n$.
 
 We compare four distinct algorithms to showcase the advantages of our proposed methods:
 
@@ -484,7 +484,7 @@ write.csv(Result_Matrix, file = 'example3.csv')
 
 ## Conclusion
 
-The **BSPwSVMs** package provides a comprehensive toolkit for high-dimensional binary classification where both predictive accuracy and model interpretability are paramount. By integrating weighted Support Vector Machines (wSVMs) with sparsity-inducing penalties, we address a critical gap in standard machine learning workflows: the need for reliable class probability estimation in the presence of noise and high-dimensional features.
+The `BSPwSVMs` package provides a comprehensive toolkit for high-dimensional binary classification where both predictive accuracy and model interpretability are paramount. By integrating weighted Support Vector Machines (wSVMs) with sparsity-inducing penalties, we address a critical gap in standard machine learning workflows: the need for reliable class probability estimation in the presence of noise and high-dimensional features.
 
 **Our key contributions include:**
 
